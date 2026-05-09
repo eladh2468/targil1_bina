@@ -26,9 +26,39 @@ def solve_problems(problem):
     if result and isinstance(result[0], search.Node):
         solve = result[0].path()[::-1]
         solution = [pi.action for pi in solve][1:]
-        print(len(solution), solution)
+        
+        # הדפסה מסודרת של מספר הצעדים והפעולות
+        print(f"\n   -> Steps count: {len(solution)}")
+        print(f"   -> Path: {solution}")
     else:
         print("no solution")
+
+def main():
+    start = time.time()
+    problems = [
+        ("p1  (original)", init_state_p1),
+        ("e1  (easy)",     init_state_e1),
+        ("e2  (easy)",     init_state_e2),
+        ("e3  (easy)",     init_state_e3),
+        ("e4  (easy)",     init_state_e4),
+        ("e5  (easy)",     init_state_e5),
+        ("m1  (medium)",   init_state_m1),
+        ("m2  (medium)",   init_state_m2),
+        ("m3  (medium)",   init_state_m3),
+        ("m4  (medium)",   init_state_m4),
+        ("m5  (medium)",   init_state_m5),
+    ]
+    
+    print("-" * 30)
+    for name, p in problems:
+        t0 = time.time()
+        print(f"Testing {name}:", end="")
+        solve_problems(p)
+        print(f"   (Duration: {time.time() - t0:.2f}s)")
+        print("-" * 30)
+        
+    end = time.time()
+    print(f'Total Submission Time: {end - start:.4f} seconds.')
 
 
 # Format reminder:
