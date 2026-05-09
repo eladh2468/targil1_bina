@@ -109,7 +109,35 @@ class ElevatorsProblem(search.Problem):
         return all(isinstance(p[1], int) and p[1] == p[3] for p in state[2])
 
     def h_astar(self, node):
-        return 0;
+        state = node.state
+        elevators = state[1]
+        persons = state[2]
+        h = 0
+        
+        for p in persons:
+            p_loc, p_goal = p[1], p[3]
+            
+            if p_loc == p_goal:
+                continue
+            
+            # בדיקת טרנספר: האם היעד של האדם לא נגיש למעלית הנוכחית שלו?
+            if isinstance(p_loc, str): # האדם בתוך מעלית
+                e_info = next(e for e in elevators if e[0] == p_loc)
+                reachable_floors = e_info[2]
+                if p_goal in reachable_floors:
+                    h += 1  # רק EXIT אחד וזהו
+                else:
+                    h += 3  # חייב EXIT, ואז לפחות עוד ENTER ו-EXIT ממעלית אחרת
+            
+            else: # האדם מחכה בקומה
+                # האם יש לפחות מעלית אחת שיכולה לקחת אותו מהמקור ליעד ישירות?
+                can_go_direct = any(p_loc in e[2] and p_goal in e[2] for e in elevators)
+                if can_go_direct:
+                    h += 2  # חייב ENTER ו-EXIT
+                else:
+                    h += 4  # חייב ENTER, EXIT (מעבר), ENTER, EXIT (סופי)
+        
+        return h
 
 def create_elevators_problem(game):
     elev_list = []
