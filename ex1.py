@@ -116,27 +116,22 @@ class ElevatorsProblem(search.Problem):
         
         for p in persons:
             p_loc, p_goal = p[1], p[3]
-            
             if p_loc == p_goal:
                 continue
             
-            # בדיקת טרנספר: האם היעד של האדם לא נגיש למעלית הנוכחית שלו?
-            if isinstance(p_loc, str): # האדם בתוך מעלית
+            # עלות בסיסית של פעולות ENTER/EXIT
+            if isinstance(p_loc, str): # בתוך מעלית
                 e_info = next(e for e in elevators if e[0] == p_loc)
-                reachable_floors = e_info[2]
-                if p_goal in reachable_floors:
-                    h += 1  # רק EXIT אחד וזהו
-                else:
-                    h += 3  # חייב EXIT, ואז לפחות עוד ENTER ו-EXIT ממעלית אחרת
-            
-            else: # האדם מחכה בקומה
-                # האם יש לפחות מעלית אחת שיכולה לקחת אותו מהמקור ליעד ישירות?
+                h += 1 if p_goal in e_info[2] else 3
+            else: # מחכה בקומה
                 can_go_direct = any(p_loc in e[2] and p_goal in e[2] for e in elevators)
-                if can_go_direct:
-                    h += 2  # חייב ENTER ו-EXIT
-                else:
-                    h += 4  # חייב ENTER, EXIT (מעבר), ENTER, EXIT (סופי)
-        
+                h += 2 if can_go_direct else 4
+            
+            # חיזוק: הוספת מרחק קומות מינימלי (חלקי 10 כדי לשמור על קבילות)
+            # בבעיה שבה כל תנועה עולה 1, המרחק הוא חסם תחתון לעלות התנועה.
+            curr_floor = p_loc if isinstance(p_loc, int) else next(e[1] for e in elevators if e[0] == p_loc)
+            h += abs(curr_floor - p_goal) * 0.01 # מקדם קטן מאוד רק כדי לשבור שיוויון לטובת כיוון נכון
+            
         return h
 
 def create_elevators_problem(game):
